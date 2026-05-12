@@ -79,3 +79,10 @@ void Minimizer::recursionAnswer(ll i, MinDNF& currMinDNF, vector<vector<ll>>& ce
         if(added) currMinDNF.del_back();
     }
 }
+
+void Minimizer::makeStep(){
+    if(stage==0) step1();
+    if(stage==1) step2();
+    if(stage==2) step3();
+    if(stage<3) ++stage;
+}
