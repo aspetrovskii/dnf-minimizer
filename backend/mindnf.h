@@ -12,6 +12,10 @@ struct MinDNF {
     MinDNF& operator=(MinDNF&&) noexcept = default;
     ~MinDNF() = default;
 
+    MinDNF(ll x){
+        this->size = x;
+    }
+
     ll add(Disjunct x){
         for(auto d : mindnf){
             if(d == x) return 0;

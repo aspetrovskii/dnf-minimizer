@@ -14,6 +14,8 @@ public:
     void makeStep();
     vector<ll> getAnswer();
     map<ll, vector<ll>, PopcountComparator> returnTable() { return table; };
+    ll returnStage() {return stage;};
+    MinDNF returnAns() {return bestDNF;};
 
 signals:
 
@@ -23,9 +25,10 @@ private:
     ll stage = 0;
     ll N, M;
     vector<ll> func, answer;
+    MinDNF bestDNF;
 
     void step1(), step2(), step3(), computeAnswer();
-    void recursionAnswer(ll i, MinDNF& currMinDNF, vector<vector<ll>>& cells, vector<MinDNF>& minDNFs);
+    void recursionAnswer(ll i, MinDNF& currMinDNF, vector<vector<ll>>& cells, MinDNF& minDNFs);
 };
 
 #endif
