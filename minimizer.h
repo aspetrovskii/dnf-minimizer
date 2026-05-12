@@ -1,12 +1,9 @@
 #ifndef MINIMIZER_H
 #define MINIMIZER_H
 
-#include <QObject>
 #include "popcountcomporator.h"
 #include "disjunct.h"
 #include "mindnf.h"
-
-const ll INF = 1e18;
 
 class Minimizer : public QObject {
     Q_OBJECT

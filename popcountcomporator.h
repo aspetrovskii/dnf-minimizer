@@ -1,7 +1,9 @@
+#include "includes.h"
+
 struct PopcountComparator {
-    bool operator()(int lhs, int rhs) const {
-        int lhsCount = __builtin_popcount(static_cast<unsigned int>(lhs));
-        int rhsCount = __builtin_popcount(static_cast<unsigned int>(rhs));
+    bool operator()(ll lhs, ll rhs) const {
+        int lhsCount = __builtin_popcount(static_cast<ull>(lhs));
+        int rhsCount = __builtin_popcount(static_cast<ull>(rhs));
         if (lhsCount != rhsCount) return lhsCount < rhsCount;
         return lhs < rhs;
     }
