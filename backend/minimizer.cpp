@@ -49,8 +49,6 @@ void Minimizer::step3() {
             }
         }
     }
-
-    computeAnswer();
 }
 
 void Minimizer::computeAnswer() {
@@ -60,15 +58,28 @@ void Minimizer::computeAnswer() {
             if(!column[i]) cells[i].push_back(mask);
         }
     }
-    vector<MinDNF> minDNFs; //size, disjuncts
+    bestDNF = MinDNF(INF);
     MinDNF currMinDNF;
-    recursionAnswer(0, currMinDNF, cells, minDNFs);
+    recursionAnswer(0, currMinDNF, cells, bestDNF);
+    for(auto& [mask, column] : table){
+        for(ll i=0; i<M; ++i){
+            if(column[i]) continue;
+            Disjunct cand(mask, i);
+            ll inBest = 0;
+            for(auto& d : bestDNF.mindnf){
+                if(d == cand){
+                    inBest = 1;
+                    break;
+                }
+            }
+            if(!inBest) column[i] = 4;
+        }
+    }
 }
 
-void Minimizer::recursionAnswer(ll i, MinDNF& currMinDNF, vector<vector<ll>>& cells, vector<MinDNF>& minDNFs){
+void Minimizer::recursionAnswer(ll i, MinDNF& currMinDNF, vector<vector<ll>>& cells, MinDNF& minDNFs){
     if(i==M){
-        MinDNF finalMinDNF = currMinDNF;
-        minDNFs.push_back(finalMinDNF);
+        if (currMinDNF.size < minDNFs.size) minDNFs = currMinDNF;
         return;
     }
 
@@ -84,5 +95,6 @@ void Minimizer::makeStep(){
     if(stage==0) step1();
     if(stage==1) step2();
     if(stage==2) step3();
-    if(stage<3) ++stage;
+    if(stage==3) computeAnswer();
+    if(stage<4) ++stage;
 }
