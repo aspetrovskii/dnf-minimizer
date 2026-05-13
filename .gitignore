@@ -16,9 +16,6 @@ moc_predefs.h
 ui_*.h
 qrc_*.cpp
 
-src/dnf_minimizer
-backend/libminimizer_core.a
-
 *.pro.user
 *.pro.user.*
 

@@ -9,7 +9,7 @@
       "stopAtEntry": false,
       "externalConsole": false,
       "cwd": "/home/andrey/dnf-minimizer",
-      "program": "${workspaceFolder}/build/src/dnf_minimizer",
+      "program": "${workspaceFolder}/build/dnf_minimizer",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

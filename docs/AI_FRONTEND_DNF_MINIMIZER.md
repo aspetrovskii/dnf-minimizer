@@ -24,9 +24,7 @@
 |------|------------|
 | `backend/minimizer.cpp`, `backend/minimizer.h` | Ядро минимизатора |
 | `backend/disjunct.h`, `backend/mindnf.h`, `backend/popcountcomporator.h`, `backend/includes.h` | Типы и компаратор |
-| `dnf_minimizer.pro` | Корневой проект qmake (`TEMPLATE = subdirs`) |
-| `backend/minimizer_core.pro` | Статическая библиотека `minimizer_core`, `QT += core`, исходники ядра |
-| `src/dnf_minimizer.pro` | Исполняемый таргет `dnf_minimizer`, `QT += widgets`, линковка с `minimizer_core` |
+| `dnf_minimizer.pro` | Единый qmake-проект приложения (`TEMPLATE = app`), исходники `backend/` и `src/` |
 
 **Требование заказчика:** один исполняемый таргет (приложение), Qt6 — **любая разумная версия** (рекомендация: **Qt 6.5+** для стабильных Widgets).
 
@@ -36,7 +34,7 @@
 mkdir build && cd build && qmake6 ../dnf_minimizer.pro && make -j
 ```
 
-Исполняемый файл в каталоге сборки: `src/dnf_minimizer` (относительно `build/`).
+Исполняемый файл в каталоге сборки: `dnf_minimizer` (относительно `build/`).
 
 **Модули Qt:** `Core`, `Gui`, `Widgets`. Заголовки с `Q_OBJECT` перечислять в `HEADERS` соответствующего `.pro`, чтобы сработал **moc**.
 
@@ -240,7 +238,7 @@ MinDNF returnAns();
 
 ### Шаг 0 — qmake и каркас приложения
 
-- Корневой `dnf_minimizer.pro` (`TEMPLATE = subdirs`), подпроекты `backend/minimizer_core.pro` (статическая `minimizer_core`) и `src/dnf_minimizer.pro` (приложение `dnf_minimizer`, `QT += widgets`, линковка с библиотекой).
+- Корневой `dnf_minimizer.pro` (`TEMPLATE = app`, `QT += widgets`, `SOURCES`/`HEADERS` из `backend/` и `src/`, `INCLUDEPATH` для `backend` и `src`).
 - `main.cpp`: `QApplication`, одно пустое `QMainWindow` или `QWidget`.
 - Краткий README в корне **не добавлять**, если пользователь не просил.
 
