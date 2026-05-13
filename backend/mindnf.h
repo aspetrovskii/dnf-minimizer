@@ -1,3 +1,5 @@
+#pragma once
+
 #include "disjunct.h"
 
 struct MinDNF {
