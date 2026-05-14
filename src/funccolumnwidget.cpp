@@ -34,10 +34,14 @@ void FuncColumnWidget::refresh() {
 
 QSize FuncColumnWidget::sizeHint() const {
     if (!session_) {
-        return QSize(40, 100);
+        return QSize(56, 100);
     }
     const int rows = static_cast<int>(session_->m());
-    return QSize(36, rows * rowHeight_);
+    QFontMetrics fm(font());
+    const int textW = std::max(fm.horizontalAdvance(QStringLiteral("0")),
+                               fm.horizontalAdvance(QStringLiteral("1")));
+    const int w = std::max(56, textW + 32);
+    return QSize(w, rows * rowHeight_);
 }
 
 int FuncColumnWidget::rowAtY(int y) const {

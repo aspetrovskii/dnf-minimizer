@@ -25,12 +25,12 @@ void SetsPanelWidget::refresh() {
 
 QSize SetsPanelWidget::sizeHint() const {
     if (!session_) {
-        return QSize(48, 100);
+        return QSize(64, 100);
     }
     const int rows = static_cast<int>(session_->m());
     QFontMetrics fm(font());
-    const int w = fm.horizontalAdvance(QString(session_->n(), QChar('0'))) + 12;
-    return QSize(w, rows * rowHeight_);
+    const int w = fm.horizontalAdvance(QString(session_->n(), QChar('0'))) + 28;
+    return QSize(std::max(64, w), rows * rowHeight_);
 }
 
 void SetsPanelWidget::paintEvent(QPaintEvent*) {
