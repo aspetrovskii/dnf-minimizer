@@ -1,0 +1,65 @@
+#include "mindnf_formatter.h"
+
+namespace {
+
+QString disjunctDisplayHtml(const Disjunct& d, ll n) {
+    QString t;
+    for (ll k = 0; k < n; ++k) {
+        if (((d.mask >> k) & 1) == 0) {
+            continue;
+        }
+        const QChar letter(static_cast<char16_t>('A' + k));
+        if ((d.kit >> k) & 1) {
+            t += QLatin1String("<span style=\"font-size: 22pt;\">") + QString(letter) + QLatin1String("</span>");
+        } else {
+            t += QLatin1String("<span style=\"font-size: 22pt;\">") + QString(letter) + QLatin1String("&#x305;</span>");
+        }
+    }
+    return t;
+}
+
+QString disjunctClipboardPlain(const Disjunct& d, ll n) {
+    QString t;
+    const QChar neg(0x00AC);
+    for (ll k = 0; k < n; ++k) {
+        if (((d.mask >> k) & 1) == 0) {
+            continue;
+        }
+        const QChar letter(static_cast<char16_t>('A' + k));
+        if ((d.kit >> k) & 1) {
+            t += letter;
+        } else {
+            t += neg;
+            t += letter;
+        }
+    }
+    return t;
+}
+
+}  // namespace
+
+QString minDNFDisplayHtml(const MinDNF& d, ll n) {
+    if (d.mindnf.empty()) {
+        return QString();
+    }
+    QString html = QLatin1String("<div style=\"font-family: Arial;\">");
+    for (size_t i = 0; i < d.mindnf.size(); ++i) {
+        if (i > 0) {
+            html += QLatin1String(" <span style=\"font-size: 28pt;\">+</span> ");
+        }
+        html += disjunctDisplayHtml(d.mindnf[i], n);
+    }
+    html += QLatin1String("</div>");
+    return html;
+}
+
+QString minDNFClipboardPlain(const MinDNF& d, ll n) {
+    QString t;
+    for (size_t i = 0; i < d.mindnf.size(); ++i) {
+        if (i > 0) {
+            t += QLatin1String(" + ");
+        }
+        t += disjunctClipboardPlain(d.mindnf[i], n);
+    }
+    return t;
+}
