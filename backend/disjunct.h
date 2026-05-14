@@ -18,5 +18,5 @@ struct Disjunct {
     }
 
     ll get() const { return mask & kit; };
-    ll size() const {return __builtin_popcount(mask);} ;
+    ll size() const {return __builtin_popcount(kit);} ;
 };
