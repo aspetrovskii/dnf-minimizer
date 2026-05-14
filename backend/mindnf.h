@@ -26,6 +26,7 @@ struct MinDNF {
     }
 
     void del_back(){
+        this->size -= mindnf.back().size();
         mindnf.pop_back();
     }
 };
