@@ -20,3 +20,6 @@ qrc_*.cpp
 *.pro.user.*
 
 *.autosave
+
+/.cursor
+/.vscode
