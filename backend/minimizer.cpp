@@ -75,11 +75,25 @@ void Minimizer::computeAnswer() {
             if(!inBest) column[i] = 4;
         }
     }
+    for(ll i=0; i<M; ++i){
+        ll seenZero = 0;
+        for(auto& [mask, column] : table){
+            if(!column[i]){
+                if(seenZero) column[i] = 4;
+                else seenZero = 1;
+            }
+        }
+    }
 }
 
 void Minimizer::recursionAnswer(ll i, MinDNF& currMinDNF, vector<vector<ll>>& cells, MinDNF& minDNFs){
     if(i==M){
         if (currMinDNF.size < minDNFs.size) minDNFs = currMinDNF;
+        return;
+    }
+
+    if(cells[i].empty()){
+        recursionAnswer(i+1, currMinDNF, cells, minDNFs);
         return;
     }
 
