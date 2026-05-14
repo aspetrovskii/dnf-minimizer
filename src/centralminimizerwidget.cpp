@@ -10,6 +10,7 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSignalBlocker>
+#include <QStyle>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -169,121 +170,75 @@ private:
     const MinimizerTableModel* model_ = nullptr;
 };
 
-class CornerBodyWidget : public QWidget {
-public:
-    explicit CornerBodyWidget(QWidget* parent = nullptr) : QWidget(parent) {}
-
-    void setMetrics(int w, int rowH, ll m) {
-        cornerW_ = w;
-        rowH_ = rowH;
-        m_ = m;
-        updateGeometry();
-        update();
-    }
-
-    QSize sizeHint() const override {
-        return QSize(std::max(1, cornerW_), std::max(1, static_cast<int>(m_) * rowH_));
-    }
-
-protected:
-    void paintEvent(QPaintEvent*) override {
-        QPainter p(this);
-        p.fillRect(rect(), palette().base());
-        p.setPen(palette().color(QPalette::Text));
-        for (ll i = 0; i < m_; ++i) {
-            const QRect rr(0, static_cast<int>(i) * rowH_, width(), rowH_);
-            p.drawRect(rr);
-        }
-    }
-
-private:
-    int cornerW_ = 36;
-    int rowH_ = 22;
-    ll m_ = 0;
-};
-
 }  // namespace
 
 CentralMinimizerWidget::CentralMinimizerWidget(MinimizerSession* session, QWidget* parent)
     : QWidget(parent), session_(session) {
-    auto* root = new QHBoxLayout(this);
-    root->setContentsMargins(0, 0, 0, 0);
-    root->setSpacing(0);
-
-    leftScroll_ = new QScrollArea(this);
-    leftScroll_->setFrameShape(QFrame::NoFrame);
-    leftScroll_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    leftScroll_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    leftScroll_->setWidgetResizable(false);
-
-    auto* leftInner = new QWidget(leftScroll_);
-    auto* leftLay = new QHBoxLayout(leftInner);
-    leftLay->setContentsMargins(0, 0, 0, 0);
-    leftLay->setSpacing(0);
-    sets_ = new SetsPanelWidget(session_, leftInner);
-    func_ = new FuncColumnWidget(session_, leftInner);
-    leftLay->addWidget(sets_);
-    leftLay->addWidget(func_);
-    leftScroll_->setWidget(leftInner);
-    connect(func_, &FuncColumnWidget::dataEdited, this, [this] { emit modelChanged(); });
-
-    auto* right = new QWidget(this);
-    auto* grid = new QGridLayout(right);
+    auto* grid = new QGridLayout(this);
     grid->setContentsMargins(0, 0, 0, 0);
     grid->setSpacing(0);
 
-    cornerTop_ = new QWidget(right);
+    cornerTop_ = new QWidget(this);
     toggleBtn_ = new QPushButton(QStringLiteral("\u25B6"), cornerTop_);
     toggleBtn_->setToolTip(QStringLiteral("Панель наборов"));
+    toggleBtn_->setFocusPolicy(Qt::NoFocus);
     auto* ctLay = new QHBoxLayout(cornerTop_);
     ctLay->setContentsMargins(0, 0, 0, 0);
-    ctLay->addWidget(toggleBtn_, 0, Qt::AlignCenter);
+    ctLay->setSpacing(0);
+    ctLay->addStretch(1);
+    ctLay->addWidget(toggleBtn_, 0, Qt::AlignRight | Qt::AlignVCenter);
     connect(toggleBtn_, &QPushButton::clicked, this, &CentralMinimizerWidget::onToggleSets);
 
-    headScroll_ = new QScrollArea(right);
+    headScroll_ = new QScrollArea(this);
     headScroll_->setFrameShape(QFrame::NoFrame);
-    headScroll_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    headScroll_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     headScroll_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     headScroll_->setWidgetResizable(false);
     headerHost_ = new HeaderPaintWidget(headScroll_);
     headScroll_->setWidget(headerHost_);
 
-    cornerBodyScroll_ = new QScrollArea(right);
-    cornerBodyScroll_->setFrameShape(QFrame::NoFrame);
-    cornerBodyScroll_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    cornerBodyScroll_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    cornerBodyScroll_->setWidgetResizable(false);
-    cornerBody_ = new CornerBodyWidget(cornerBodyScroll_);
-    cornerBodyScroll_->setWidget(cornerBody_);
+    leftScroll_ = new QScrollArea(this);
+    leftScroll_->setFrameShape(QFrame::NoFrame);
+    leftScroll_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    leftScroll_->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    leftScroll_->setWidgetResizable(false);
+    leftInner_ = new QWidget(leftScroll_);
+    auto* leftLay = new QHBoxLayout(leftInner_);
+    leftLay->setContentsMargins(0, 0, 0, 0);
+    leftLay->setSpacing(0);
+    sets_ = new SetsPanelWidget(session_, leftInner_);
+    func_ = new FuncColumnWidget(session_, leftInner_);
+    leftLay->addWidget(sets_);
+    leftLay->addWidget(func_);
+    leftScroll_->setWidget(leftInner_);
+    connect(func_, &FuncColumnWidget::dataEdited, this, [this] { emit modelChanged(); });
 
-    bodyScroll_ = new QScrollArea(right);
+    bodyScroll_ = new QScrollArea(this);
     bodyScroll_->setFrameShape(QFrame::NoFrame);
+    bodyScroll_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    bodyScroll_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     bodyScroll_->setWidgetResizable(false);
     bodyGrid_ = new BodyPaintWidget(bodyScroll_);
     bodyScroll_->setWidget(bodyGrid_);
 
     grid->addWidget(cornerTop_, 0, 0);
     grid->addWidget(headScroll_, 0, 1);
-    grid->addWidget(cornerBodyScroll_, 1, 0);
+    grid->addWidget(leftScroll_, 1, 0);
     grid->addWidget(bodyScroll_, 1, 1);
     grid->setRowStretch(1, 1);
     grid->setColumnStretch(1, 1);
-
-    root->addWidget(leftScroll_);
-    root->addWidget(right, 1);
 
     connect(bodyScroll_->verticalScrollBar(), &QScrollBar::valueChanged, this,
             &CentralMinimizerWidget::syncLeftVFromBody);
     connect(leftScroll_->verticalScrollBar(), &QScrollBar::valueChanged, this,
             &CentralMinimizerWidget::syncBodyVFromLeft);
-    connect(cornerBodyScroll_->verticalScrollBar(), &QScrollBar::valueChanged, this,
-            &CentralMinimizerWidget::syncCornerVFromBody);
     connect(bodyScroll_->horizontalScrollBar(), &QScrollBar::valueChanged, this,
             &CentralMinimizerWidget::syncHeadHFromBody);
     connect(headScroll_->horizontalScrollBar(), &QScrollBar::valueChanged, this,
             &CentralMinimizerWidget::syncBodyHFromHead);
 
     bodyScroll_->viewport()->installEventFilter(this);
+    leftScroll_->viewport()->installEventFilter(this);
 
     sets_->hide();
     refresh();
@@ -293,8 +248,8 @@ void CentralMinimizerWidget::rebuildModel() {
     model_.n = session_->n();
     model_.m = session_->m();
     model_.rowH = std::max(12, static_cast<int>(std::lround(22.0 * zoom_)));
-    model_.cornerW = 36;
-    model_.font = QFont(QStringLiteral("Arial"), std::max(8, static_cast<int>(std::lround(11.0 * zoom_))));
+    model_.font = QFont(QStringLiteral("Arial"),
+                        std::max(8, static_cast<int>(std::lround(11.0 * zoom_))));
     model_.masks.clear();
     model_.values.clear();
     if (!session_->minimizer()) {
@@ -310,24 +265,31 @@ void CentralMinimizerWidget::rebuildModel() {
 }
 
 void CentralMinimizerWidget::applySizes() {
-    if (cornerTop_) {
-        cornerTop_->setFixedHeight(model_.rowH);
-        cornerTop_->setFixedWidth(model_.cornerW);
-    }
-    toggleBtn_->setMaximumWidth(model_.cornerW);
-
-    static_cast<CornerBodyWidget*>(cornerBody_)->setMetrics(model_.cornerW, model_.rowH, model_.m);
     static_cast<HeaderPaintWidget*>(headerHost_)->setModel(&model_);
     static_cast<BodyPaintWidget*>(bodyGrid_)->setModel(&model_);
 
     const int tableW = std::max(1, totalTableWidth(model_));
-    const int bodyH = static_cast<int>(model_.m) * model_.rowH;
+    const int bodyH = std::max(1, static_cast<int>(model_.m) * model_.rowH);
     headerHost_->resize(tableW, model_.rowH);
     bodyGrid_->resize(tableW, bodyH);
-    cornerBody_->resize(model_.cornerW, bodyH);
 
-    const int leftW = (setsVisible_ ? sets_->sizeHint().width() : 0) + func_->sizeHint().width();
-    leftScroll_->widget()->setFixedSize(std::max(1, leftW), std::max(1, bodyH));
+    const int sw = setsVisible_ ? sets_->sizeHint().width() : 0;
+    const int fw = func_->sizeHint().width();
+    if (setsVisible_) {
+        sets_->setFixedWidth(sw);
+    }
+    func_->setFixedWidth(fw);
+    const int leftW = std::max(1, sw + fw);
+
+    const int hbarH = bodyScroll_->horizontalScrollBar()->sizeHint().height();
+    leftInner_->setFixedSize(leftW, bodyH + hbarH);
+    leftScroll_->setFixedWidth(leftW);
+
+    cornerTop_->setFixedHeight(model_.rowH);
+    cornerTop_->setFixedWidth(leftW);
+    headScroll_->setFixedHeight(model_.rowH);
+    toggleBtn_->setFixedHeight(std::max(16, model_.rowH));
+    toggleBtn_->setMaximumWidth(std::min(leftW, 36));
 }
 
 void CentralMinimizerWidget::setZoom(qreal z) {
@@ -342,7 +304,9 @@ void CentralMinimizerWidget::setZoom(qreal z) {
 
 void CentralMinimizerWidget::refresh() {
     rebuildModel();
+    sets_->setFont(model_.font);
     sets_->setRowHeight(model_.rowH);
+    func_->setFont(model_.font);
     func_->setRowHeight(model_.rowH);
     applySizes();
     sets_->refresh();
@@ -365,10 +329,8 @@ void CentralMinimizerWidget::syncLeftVFromBody(int v) {
         return;
     }
     syncingV_ = true;
-    QSignalBlocker b1(leftScroll_->verticalScrollBar());
-    QSignalBlocker b2(cornerBodyScroll_->verticalScrollBar());
+    QSignalBlocker b(leftScroll_->verticalScrollBar());
     leftScroll_->verticalScrollBar()->setValue(v);
-    cornerBodyScroll_->verticalScrollBar()->setValue(v);
     syncingV_ = false;
 }
 
@@ -377,22 +339,8 @@ void CentralMinimizerWidget::syncBodyVFromLeft(int v) {
         return;
     }
     syncingV_ = true;
-    QSignalBlocker b1(bodyScroll_->verticalScrollBar());
-    QSignalBlocker b2(cornerBodyScroll_->verticalScrollBar());
+    QSignalBlocker b(bodyScroll_->verticalScrollBar());
     bodyScroll_->verticalScrollBar()->setValue(v);
-    cornerBodyScroll_->verticalScrollBar()->setValue(v);
-    syncingV_ = false;
-}
-
-void CentralMinimizerWidget::syncCornerVFromBody(int v) {
-    if (syncingV_) {
-        return;
-    }
-    syncingV_ = true;
-    QSignalBlocker b1(bodyScroll_->verticalScrollBar());
-    QSignalBlocker b2(leftScroll_->verticalScrollBar());
-    bodyScroll_->verticalScrollBar()->setValue(v);
-    leftScroll_->verticalScrollBar()->setValue(v);
     syncingV_ = false;
 }
 
@@ -417,12 +365,19 @@ void CentralMinimizerWidget::syncBodyHFromHead(int v) {
 }
 
 bool CentralMinimizerWidget::eventFilter(QObject* watched, QEvent* event) {
-    if (watched == bodyScroll_->viewport() && event->type() == QEvent::Wheel) {
+    if (event->type() == QEvent::Wheel) {
         auto* we = static_cast<QWheelEvent*>(event);
-        if (we->modifiers() & Qt::ShiftModifier) {
-            const int dx = we->angleDelta().y();
-            QScrollBar* h = bodyScroll_->horizontalScrollBar();
-            h->setValue(h->value() - dx);
+        if (watched == bodyScroll_->viewport()) {
+            if (we->modifiers() & Qt::ShiftModifier) {
+                const int dx = we->angleDelta().y();
+                QScrollBar* h = bodyScroll_->horizontalScrollBar();
+                h->setValue(h->value() - dx);
+                return true;
+            }
+        } else if (watched == leftScroll_->viewport()) {
+            QScrollBar* v = bodyScroll_->verticalScrollBar();
+            const int dy = we->angleDelta().y();
+            v->setValue(v->value() - dy);
             return true;
         }
     }

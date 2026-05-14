@@ -10,7 +10,6 @@ struct MinimizerTableModel {
     ll n = 0;
     ll m = 0;
     int rowH = 22;
-    int cornerW = 36;
     QFont font;
     std::vector<ll> masks;
     std::vector<int> colWidths;
@@ -45,7 +44,6 @@ private slots:
     void onToggleSets();
     void syncLeftVFromBody(int v);
     void syncBodyVFromLeft(int v);
-    void syncCornerVFromBody(int v);
     void syncHeadHFromBody(int v);
     void syncBodyHFromHead(int v);
 
@@ -63,12 +61,11 @@ private:
     QScrollArea* leftScroll_ = nullptr;
     QScrollArea* headScroll_ = nullptr;
     QScrollArea* bodyScroll_ = nullptr;
-    QScrollArea* cornerBodyScroll_ = nullptr;
     QPushButton* toggleBtn_ = nullptr;
     QWidget* cornerTop_ = nullptr;
     QWidget* headerHost_ = nullptr;
     QWidget* bodyGrid_ = nullptr;
-    QWidget* cornerBody_ = nullptr;
+    QWidget* leftInner_ = nullptr;
 
     bool setsVisible_ = false;
     bool syncingV_ = false;
