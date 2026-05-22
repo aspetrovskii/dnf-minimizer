@@ -39,7 +39,7 @@ bool MinimizerSession::setFuncCell(ll index, ll value) {
     if (index < 0 || index >= m()) {
         return false;
     }
-    const ll st = minimizer_->returnStage();
+    const ll st = minimizer_->stage();
     if (st >= 1 && st <= 3) {
         return false;
     }
@@ -55,7 +55,7 @@ bool MinimizerSession::toggleFuncCell(ll index) {
     if (index < 0 || index >= m()) {
         return false;
     }
-    const ll st = minimizer_->returnStage();
+    const ll st = minimizer_->stage();
     if (st >= 1 && st <= 3) {
         return false;
     }
@@ -76,17 +76,17 @@ bool MinimizerSession::stepForward() {
 }
 
 ll MinimizerSession::stage() const {
-    return minimizer_->returnStage();
+    return minimizer_->stage();
 }
 
 bool MinimizerSession::canStepForward() const {
-    return minimizer_ && minimizer_->returnStage() < 4;
+    return minimizer_ && minimizer_->stage() < 4;
 }
 
 bool MinimizerSession::canEditFunc() const {
     if (!minimizer_) {
         return false;
     }
-    const ll st = minimizer_->returnStage();
+    const ll st = minimizer_->stage();
     return st == 0 || st == 4;
 }
