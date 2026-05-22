@@ -27,13 +27,18 @@ public:
     bool canStepForward() const;
     bool canEditFunc() const;
 
+    bool isConstantFunc() const { return constantDNF_ >= 0; }
+    ll constantDNF() const { return constantDNF_; }
+
     const Minimizer* minimizer() const { return minimizer_.get(); }
     Minimizer* minimizer() { return minimizer_.get(); }
 
 private:
     void rebuildMinimizer();
+    void updateConstantDNF();
 
     ll n_;
     std::vector<ll> func_;
     std::unique_ptr<Minimizer> minimizer_;
+    ll constantDNF_ = -1;
 };
