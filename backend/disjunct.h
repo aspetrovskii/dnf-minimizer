@@ -18,6 +18,7 @@ public:
     ll literalCount() const;
 
     bool operator==(const Disjunct& other) const;
+    bool operator<(const Disjunct& other) const;
 
 private:
     ll mask_;

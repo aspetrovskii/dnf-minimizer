@@ -13,3 +13,10 @@ ll Disjunct::literalCount() const {
 bool Disjunct::operator==(const Disjunct& other) const {
     return covered() == other.covered() && mask_ == other.mask_;
 }
+
+bool Disjunct::operator<(const Disjunct& other) const {
+    if (mask_ != other.mask_) {
+        return mask_ < other.mask_;
+    }
+    return covered() < other.covered();
+}

@@ -15,12 +15,12 @@ public:
 
     bool empty() const { return disjuncts_.empty(); }
     ll weight() const { return weight_; }
-    const vector<Disjunct>& disjuncts() const { return disjuncts_; }
+    const map<Disjunct, ll>& disjuncts() const { return disjuncts_; }
 
     ll add(const Disjunct& d);
-    void popLast();
+    void remove(const Disjunct& d);
 
 private:
-    vector<Disjunct> disjuncts_;
+    map<Disjunct, ll> disjuncts_;
     ll weight_ = 0;
 };

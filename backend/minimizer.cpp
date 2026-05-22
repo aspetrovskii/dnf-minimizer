@@ -70,7 +70,7 @@ void Minimizer::computeAnswer() {
             }
             const Disjunct cand(mask, i);
             ll inBest = 0;
-            for (const auto& d : bestDNF_.disjuncts()) {
+            for (const auto& [d, _] : bestDNF_.disjuncts()) {
                 if (d == cand) {
                     inBest = 1;
                     break;
@@ -113,7 +113,7 @@ void Minimizer::recursionAnswer(ll i, MinDNF& curr, vector<vector<ll>>& cells, M
         const ll added = curr.add(d);
         recursionAnswer(i + 1, curr, cells, best);
         if (added) {
-            curr.popLast();
+            curr.remove(d);
         }
     }
 }
