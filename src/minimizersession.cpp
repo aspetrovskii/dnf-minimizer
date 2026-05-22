@@ -24,8 +24,23 @@ void MinimizerSession::setN(ll n) {
     rebuildMinimizer();
 }
 
+void MinimizerSession::updateConstantDNF() {
+    ll sum = 0;
+    for (ll v : func_) {
+        sum += v;
+    }
+    if (sum == 0) {
+        constantDNF_ = 0;
+    } else if (sum == m()) {
+        constantDNF_ = 1;
+    } else {
+        constantDNF_ = -1;
+    }
+}
+
 void MinimizerSession::rebuildMinimizer() {
     minimizer_ = std::make_unique<Minimizer>(func_, n_, nullptr);
+    updateConstantDNF();
 }
 
 void MinimizerSession::resetMinimization() {
@@ -39,7 +54,7 @@ bool MinimizerSession::setFuncCell(ll index, ll value) {
     if (index < 0 || index >= m()) {
         return false;
     }
-    const ll st = minimizer_->stage();
+    const ll st = stage();
     if (st >= 1 && st <= 3) {
         return false;
     }
@@ -55,7 +70,7 @@ bool MinimizerSession::toggleFuncCell(ll index) {
     if (index < 0 || index >= m()) {
         return false;
     }
-    const ll st = minimizer_->stage();
+    const ll st = stage();
     if (st >= 1 && st <= 3) {
         return false;
     }
@@ -76,16 +91,25 @@ bool MinimizerSession::stepForward() {
 }
 
 ll MinimizerSession::stage() const {
+    if (isConstantFunc()) {
+        return 4;
+    }
     return minimizer_->stage();
 }
 
 bool MinimizerSession::canStepForward() const {
+    if (isConstantFunc()) {
+        return false;
+    }
     return minimizer_ && minimizer_->stage() < 4;
 }
 
 bool MinimizerSession::canEditFunc() const {
     if (!minimizer_) {
         return false;
+    }
+    if (isConstantFunc()) {
+        return true;
     }
     const ll st = minimizer_->stage();
     return st == 0 || st == 4;
