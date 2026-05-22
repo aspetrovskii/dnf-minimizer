@@ -134,11 +134,15 @@ void MainWindow::refreshAll() {
     stepBtn_->setEnabled(session_.canStepForward());
     center_->setZoom(zoomValue_);
     center_->refresh();
-    if (session_.stage() == 4 && session_.minimizer()) {
-        const MinDNF ans = session_.minimizer()->returnAns();
+    if (session_.isConstantFunc()) {
+        const ll v = session_.constantDNF();
+        static_cast<AnswerCopyLabel*>(answerLabel_)->showAnswer(constantDNFDisplayHtml(v),
+                                                               constantDNFClipboardPlain(v));
+    } else if (session_.stage() == 4 && session_.minimizer()) {
+        const MinDNF& ans = session_.minimizer()->answer();
         const QString clip = minDNFClipboardPlain(ans, session_.n());
         const QString html = minDNFDisplayHtml(ans, session_.n());
-        if (ans.mindnf.empty()) {
+        if (ans.empty()) {
             static_cast<AnswerCopyLabel*>(answerLabel_)->showIdle();
         } else {
             static_cast<AnswerCopyLabel*>(answerLabel_)->showAnswer(html, clip);

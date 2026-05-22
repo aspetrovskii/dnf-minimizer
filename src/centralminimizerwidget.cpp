@@ -256,7 +256,7 @@ void CentralMinimizerWidget::rebuildModel() {
         recomputeColWidths(model_);
         return;
     }
-    const auto tab = session_->minimizer()->returnTable();
+    const auto& tab = session_->minimizer()->table();
     for (const auto& e : tab) {
         model_.masks.push_back(e.first);
         model_.values.push_back(e.second);

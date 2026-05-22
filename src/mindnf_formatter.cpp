@@ -5,11 +5,11 @@ namespace {
 QString disjunctDisplayHtml(const Disjunct& d, ll n) {
     QString t;
     for (ll k = 0; k < n; ++k) {
-        if (((d.mask >> k) & 1) == 0) {
+        if (((d.mask() >> k) & 1) == 0) {
             continue;
         }
         const QChar letter(static_cast<char16_t>('A' + k));
-        if ((d.kit >> k) & 1) {
+        if ((d.kit() >> k) & 1) {
             t += QLatin1String("<span style=\"font-size: 22pt;\">") + QString(letter) + QLatin1String("</span>");
         } else {
             t += QLatin1String("<span style=\"font-size: 22pt;\">") + QString(letter) + QLatin1String("&#x305;</span>");
@@ -22,11 +22,11 @@ QString disjunctClipboardPlain(const Disjunct& d, ll n) {
     QString t;
     const QChar neg(0x00AC);
     for (ll k = 0; k < n; ++k) {
-        if (((d.mask >> k) & 1) == 0) {
+        if (((d.mask() >> k) & 1) == 0) {
             continue;
         }
         const QChar letter(static_cast<char16_t>('A' + k));
-        if ((d.kit >> k) & 1) {
+        if ((d.kit() >> k) & 1) {
             t += letter;
         } else {
             t += neg;
@@ -39,27 +39,40 @@ QString disjunctClipboardPlain(const Disjunct& d, ll n) {
 }  // namespace
 
 QString minDNFDisplayHtml(const MinDNF& d, ll n) {
-    if (d.mindnf.empty()) {
+    if (d.empty()) {
         return QString();
     }
     QString html = QLatin1String("<div style=\"font-family: Arial;\">");
-    for (size_t i = 0; i < d.mindnf.size(); ++i) {
-        if (i > 0) {
+    ll first = 1;
+    for (const auto& [disj, _] : d.disjuncts()) {
+        if (!first) {
             html += QLatin1String(" <span style=\"font-size: 28pt;\">+</span> ");
         }
-        html += disjunctDisplayHtml(d.mindnf[i], n);
+        first = 0;
+        html += disjunctDisplayHtml(disj, n);
     }
     html += QLatin1String("</div>");
     return html;
 }
 
+QString constantDNFDisplayHtml(ll value) {
+    return QLatin1String("<div style=\"font-family: Arial;\"><span style=\"font-size: 28pt;\">") +
+           QString::number(static_cast<int>(value)) + QLatin1String("</span></div>");
+}
+
+QString constantDNFClipboardPlain(ll value) {
+    return QString::number(static_cast<int>(value));
+}
+
 QString minDNFClipboardPlain(const MinDNF& d, ll n) {
     QString t;
-    for (size_t i = 0; i < d.mindnf.size(); ++i) {
-        if (i > 0) {
+    ll first = 1;
+    for (const auto& [disj, _] : d.disjuncts()) {
+        if (!first) {
             t += QLatin1String(" + ");
         }
-        t += disjunctClipboardPlain(d.mindnf[i], n);
+        first = 0;
+        t += disjunctClipboardPlain(disj, n);
     }
     return t;
 }
