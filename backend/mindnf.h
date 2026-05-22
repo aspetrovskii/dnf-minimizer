@@ -2,33 +2,25 @@
 
 #include "disjunct.h"
 
-struct MinDNF {
-    public:
-    vector<Disjunct> mindnf;
-    ll size=0;
-
+class MinDNF {
+public:
     MinDNF() = default;
+    explicit MinDNF(ll maxWeight);
+
     MinDNF(const MinDNF&) = default;
     MinDNF(MinDNF&&) noexcept = default;
     MinDNF& operator=(const MinDNF&) = default;
     MinDNF& operator=(MinDNF&&) noexcept = default;
     ~MinDNF() = default;
 
-    MinDNF(ll x){
-        this->size = x;
-    }
+    bool empty() const { return disjuncts_.empty(); }
+    ll weight() const { return weight_; }
+    const vector<Disjunct>& disjuncts() const { return disjuncts_; }
 
-    ll add(Disjunct x){
-        for(auto d : mindnf){
-            if(d == x) return 0;
-        }
-        mindnf.push_back(x);
-        size+=x.size();
-        return 1;
-    }
+    ll add(const Disjunct& d);
+    void popLast();
 
-    void del_back(){
-        this->size -= mindnf.back().size();
-        mindnf.pop_back();
-    }
+private:
+    vector<Disjunct> disjuncts_;
+    ll weight_ = 0;
 };

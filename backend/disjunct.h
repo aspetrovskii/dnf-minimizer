@@ -2,23 +2,24 @@
 
 #include "includes.h"
 
-struct Disjunct {
-    public:
-    ll mask, kit;
-    explicit Disjunct (ll mask, ll kit) {
-        this->mask = mask;
-        this->kit = kit;
-    }
+class Disjunct {
+public:
+    Disjunct(ll mask, ll kit);
+
     Disjunct(const Disjunct&) = default;
     Disjunct(Disjunct&&) noexcept = default;
     Disjunct& operator=(const Disjunct&) = default;
     Disjunct& operator=(Disjunct&&) noexcept = default;
     ~Disjunct() = default;
 
-    friend bool operator==(const Disjunct& d, const Disjunct& x) {
-        return d.get() == x.get() && d.mask == x.mask;
-    }
+    ll mask() const { return mask_; }
+    ll kit() const { return kit_; }
+    ll covered() const;
+    ll literalCount() const;
 
-    ll get() const { return mask & kit; };
-    ll size() const {return __builtin_popcount(kit);} ;
+    bool operator==(const Disjunct& other) const;
+
+private:
+    ll mask_;
+    ll kit_;
 };

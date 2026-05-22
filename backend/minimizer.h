@@ -1,34 +1,34 @@
 #ifndef MINIMIZER_H
 #define MINIMIZER_H
 
-#include "popcountcomporator.h"
+#include "popcountcomparator.h"
 #include "disjunct.h"
 #include "mindnf.h"
 
 class Minimizer : public QObject {
     Q_OBJECT
 public:
-    explicit Minimizer(vector<ll> s, ll n, QObject *parent = nullptr);
-    ~Minimizer() = default;
+    explicit Minimizer(vector<ll> func, ll n, QObject* parent = nullptr);
+    ~Minimizer() override = default;
 
     void makeStep();
-    vector<ll> getAnswer();
-    map<ll, vector<ll>, PopcountComparator> returnTable() { return table; };
-    ll returnStage() {return stage;};
-    MinDNF returnAns() {return bestDNF;};
-
-signals:
-
+    ll stage() const { return stage_; }
+    const map<ll, vector<ll>, PopcountComparator>& table() const { return table_; }
+    const MinDNF& answer() const { return bestDNF_; }
 
 private:
-    map<ll, vector<ll>, PopcountComparator> table;
-    ll stage = 0;
-    ll N, M;
-    vector<ll> func, answer;
-    MinDNF bestDNF;
+    map<ll, vector<ll>, PopcountComparator> table_;
+    ll stage_ = 0;
+    ll n_;
+    ll m_;
+    vector<ll> func_;
+    MinDNF bestDNF_;
 
-    void step1(), step2(), step3(), computeAnswer();
-    void recursionAnswer(ll i, MinDNF& currMinDNF, vector<vector<ll>>& cells, MinDNF& minDNFs);
+    void step1();
+    void step2();
+    void step3();
+    void computeAnswer();
+    void recursionAnswer(ll i, MinDNF& curr, vector<vector<ll>>& cells, MinDNF& best);
 };
 
 #endif
